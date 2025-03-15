@@ -1,34 +1,42 @@
-import { useState, useEffect } from "react";
-// 일단 localstorage에 저장하는 방식으로 구현
-// 페이지 새로고침해도 저장 내용이 없어지지 않음, 신기 왜 그런지 나중에 찾아보기
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
+
+const API_URL = process.env.REACT_APP_API_URL;
 
 function Input() {
-  const [username, setUsername] = useState(""); 
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [users, setUsers] = useState([]);
+  const [welcomeMessage, setWelcomeMessage] = useState("");
+  const navigate = useNavigate();
 
-  useEffect(() => {
-    const savedUsers = localStorage.getItem("users");
-    if (savedUsers) {
-      setUsers(JSON.parse(savedUsers));
+  const handleSave = async () => {
+    if (!username || !password) {
+      alert("정보 입력 똑바로 해라");
+      return;
     }
-  }, []);
 
-  const handleSave = () => {
-    const newUser = { username, password };
-    const updatedUsers = [...users, newUser];
+    try {
+      const response = await axios.post(`${API_URL}/userinfo/login`, {
+        username,
+        password,
+      });
 
-    setUsers(updatedUsers);
-    localStorage.setItem("users", JSON.stringify(updatedUsers));
-
-    setUsername("");
-    setPassword("");
+      console.log("서버 응답:", response.data);
+      alert("로그인 성공 축하");
+      setWelcomeMessage(`${username}의 로그인을 환영합니다`);
+      setUsername("");
+      setPassword("");
+      navigate("/next", { state: { username } });
+    } catch (error) {
+      console.error("요청 오류:", error);
+      alert("에러 발생");
+    }
   };
 
   return (
     <>
-      <h1>Input</h1>
-      <h1>사용자 입력</h1>
+      <h1>회원가입</h1>
       <input
         type="text"
         placeholder="Username"
@@ -41,16 +49,8 @@ function Input() {
         value={password}
         onChange={(e) => setPassword(e.target.value)}
       />
-      <button onClick={handleSave}>save</button>
-
-      <h2>소중한 우리 회원들</h2>
-      <ul>
-        {users.map((user, index) => (
-          <li key={index}>
-            {user.username} / {user.password}
-          </li>
-        ))}
-      </ul>
+      <button onClick={handleSave}>가입하기</button>
+      {welcomeMessage && <p>{welcomeMessage}</p>}
     </>
   );
 }

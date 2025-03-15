@@ -2,6 +2,7 @@ import {BrowserRouter as Router, Routes, Route} from "react-router-dom";
 
 import Nav from "./components/Nav";
 import Input from "./routes/Input";
+import NextPage from "./routes/NextPage";
 
 
 function App() {
@@ -12,6 +13,7 @@ function App() {
       <Nav/>
       <Routes>
         <Route path="/input" element={<Input />} />
+        <Route path="/next" element={<NextPage />} />
       </Routes>
     </Router>
     </>
